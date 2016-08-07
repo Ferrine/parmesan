@@ -29,6 +29,8 @@ Jan Schluter https://gist.github.com/f0k/f1a6bd3c8585c400c190
 
 
 """
+from __future__ import print_function, division
+
 import lasagne
 from lasagne.layers import *
 from lasagne.nonlinearities import identity, softmax

@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 import lasagne
 
 class ListIndexLayer(lasagne.layers.Layer):

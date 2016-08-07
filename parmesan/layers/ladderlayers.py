@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 import lasagne
 import theano.tensor as T
 from lasagne.layers import MergeLayer

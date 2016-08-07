@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 import lasagne
 from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 import theano.tensor as T

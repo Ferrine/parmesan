@@ -1,6 +1,9 @@
+from __future__ import print_function, division
+
 import lasagne
 import theano.tensor as T
 import numpy as np
+
 
 class NormalizingPlanarFlowLayer(lasagne.layers.Layer):
     """
@@ -45,8 +48,7 @@ class NormalizingPlanarFlowLayer(lasagne.layers.Layer):
     
     def get_output_shape_for(self, input_shape):
         return input_shape
-    
-    
+
     def get_output_for(self, input, **kwargs):
         # 1) calculate u_hat to ensure invertibility (appendix A.1 to)
         # 2) calculate the forward transformation of the input f(z) (Eq. 8)

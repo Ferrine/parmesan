@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import print_function, division
+
 import six
 import numpy as np
 import pickle as pkl
@@ -439,7 +440,6 @@ def load_cifar10(
     train_x = np.concatenate(train_x)
     train_y = np.concatenate(train_y)
 
-
     with open(batch_folder + 'test_batch','r') as f:
         data = cPkl.load(f)
         test_x = data['data']
@@ -451,8 +451,8 @@ def load_cifar10(
         train_x += np.random.uniform(0,1,size=train_x.shape).astype('float32')
         test_x += np.random.uniform(0,1,size=test_x.shape).astype('float32')
     if normalize:
-        train_x = train_x / 256.
-        test_x = test_x / 256.
+        train_x /= 256
+        test_x /= 256
 
     train_x = train_x.reshape((50000, 3, 32, 32)).transpose(0, 2, 3, 1)
     test_x = test_x.reshape((10000, 3, 32, 32)).transpose(0, 2, 3, 1)
@@ -490,7 +490,7 @@ def load_frey_faces(
     if dequantify:
         data = data + np.random.uniform(0,1,size=data.shape).astype('float32')
     if normalize:
-        data = data / 256.
+        data /= 256
     return data
 
 def load_lfw(
@@ -528,7 +528,7 @@ def load_lfw(
     if dequantify:
         data = data + np.random.uniform(0,1,size=data.shape).astype('float32')
     if normalize:
-        data = data / 256.
+        data /= 256
     return data
 
 
@@ -580,8 +580,8 @@ def load_svhn(
         test_x += np.random.uniform(0,1,size=test_x.shape).astype('float32')
 
     if normalize:
-        train_x = train_x / 256.
-        test_x = test_x / 256.
+        train_x /= 256
+        test_x /= 256
 
     return train_x, train_y, test_x, test_y
 

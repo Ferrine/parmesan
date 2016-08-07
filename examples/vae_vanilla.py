@@ -1,5 +1,7 @@
 # Implements a variational autoencoder as described in Kingma et al. 2013
 # "Auto-Encoding Variational Bayes"
+from __future__ import print_function, division
+
 import theano
 theano.config.floatX = 'float32'
 import theano.tensor as T
@@ -60,8 +62,8 @@ train_x = train_x.astype(theano.config.floatX)
 test_x = test_x.astype(theano.config.floatX)
 
 nfeatures=train_x.shape[1]
-n_train_batches = train_x.shape[0] / batch_size
-n_test_batches = test_x.shape[0] / batch_size
+n_train_batches = train_x.shape[0] // batch_size
+n_test_batches = test_x.shape[0] // batch_size
 
 #setup shared variables
 sh_x_train = theano.shared(preprocesses_dataset(train_x), borrow=True)

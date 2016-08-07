@@ -1,6 +1,8 @@
 # Implements VIMCO
 #   Mnih, Andriy, and Danilo J. Rezende. "Variational inference for Monte Carlo
 #   objectives." arXiv preprint arXiv:1602.06725 (2016).
+from __future__ import division, print_function
+
 import theano
 theano.config.floatX = 'float32'
 import matplotlib
@@ -123,7 +125,7 @@ if dataset is 'sample':
     del train_t, valid_t, test_t
     preprocesses_dataset = bernoullisample
 else:
-    print ("Using fixed binarized MNIST data")
+    print("Using fixed binarized MNIST data")
     train_x, valid_x, test_x = load_mnist_binarized()
     preprocesses_dataset = lambda dataset: dataset  # just a dummy function
 
@@ -315,7 +317,7 @@ sample100_model = theano.function([sym_x], x_mu_sample)
 
 # Training and Testing functions
 def train_epoch(lr, eq_samples, iw_samples, batch_size):
-    n_train_batches = train_x.shape[0] / batch_size
+    n_train_batches = train_x.shape[0] // batch_size
     costs = []
     for i in range(n_train_batches):
         cost_batch = train_model(i, batch_size, lr, eq_samples, iw_samples)
@@ -324,7 +326,7 @@ def train_epoch(lr, eq_samples, iw_samples, batch_size):
 
 
 def test_epoch(eq_samples, iw_samples, batch_size):
-    n_test_batches = test_x.shape[0] / batch_size
+    n_test_batches = test_x.shape[0] // batch_size
     costs = []
     output = {'x': []}
     for i in range(n_test_batches):
@@ -332,7 +334,7 @@ def test_epoch(eq_samples, iw_samples, batch_size):
         costs += [cost_batch]
     return np.mean(costs), output
 
-print ("Training")
+print("Training")
 
 # TRAIN LOOP
 # We have made some the code very verbose to make it easier to understand.
@@ -357,7 +359,7 @@ for epoch in range(1, 1+num_epochs):
     plt.close()
 
     l = "epoch %i\ttrain %f\eval%f" % (epoch, cost_train_, cost_eval_)
-    print (l)
+    print(l)
     with open(logfile, 'a') as f:
         f.write(l + "\n")
 

@@ -2,7 +2,7 @@
 # sampling as described in Burda et al. 2015 "Importance Weighted Autoencoders"
 # and the planar normalizing flow described in Rezende et al. 2015
 # "Variational Inference with Normalizing Flows"
-from __future__ import print_function
+from __future__ import print_function, division
 
 import theano
 theano.config.floatX = 'float32'
@@ -314,7 +314,7 @@ if batch_norm:
 
 # Training and Testing functions
 def train_epoch(lr, eq_samples, iw_samples, batch_size):
-    n_train_batches = train_x.shape[0] / batch_size
+    n_train_batches = train_x.shape[0] // batch_size
     costs, log_qz_given_x, sum_logdet_J, log_pz, log_px_given_z, z_mu_train, z_log_var_train  = [],[],[],[],[],[],[]
     for i in range(n_train_batches):
         cost_batch, log_qz_given_x_batch, sum_logdet_J_batch, log_pz_batch, log_px_given_z_batch, z_mu_batch, z_log_var_batch = train_model(i, batch_size, lr, eq_samples, iw_samples)
@@ -330,7 +330,7 @@ def train_epoch(lr, eq_samples, iw_samples, batch_size):
 def test_epoch(eq_samples, iw_samples, batch_size):
     if batch_norm:
         _ = f_collect(1,1) #collect BN stats on train
-    n_test_batches = test_x.shape[0] / batch_size
+    n_test_batches = test_x.shape[0] // batch_size
     costs, log_qz_given_x, sum_logdet_J, log_pz, log_px_given_z = [],[],[],[],[]
     for i in range(n_test_batches):
         cost_batch, log_qz_given_x_batch, sum_logdet_J_batch, log_pz_batch, log_px_given_z_batch = test_model(i, batch_size, eq_samples, iw_samples)
