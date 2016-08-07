@@ -83,6 +83,7 @@ args = parser.parse_args()
 num_classes = 10
 batch_size = 100  # fails if batch_size != batch_size
 num_labels = 100
+num_inputs = 784
 
 np.random.seed(1234) # reproducibility
 
@@ -91,7 +92,7 @@ if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 output_file = os.path.join(output_folder, 'results.log')
 
-with open(output_file, 'wb') as f:
+with open(output_file, 'w') as f:
     f.write("#"*80 + "\n")
     for name, val in sorted(vars(args).items()):
         s = str(name) + " "*(40-len(name)) + str(val)
@@ -148,14 +149,13 @@ targets_train_lab = targets_train[:num_labels]
 labeled_slice = slice(0, num_labels)
 unlabeled_slice = slice(num_labels, 2*num_labels)
 
-lambdas = map(float, args.lambdas.split(','))
+lambdas = list(map(float, args.lambdas.split(',')))
 
 assert len(lambdas) == 7
 print("Lambdas: ", lambdas)
 
 
-num_classes = 10
-num_inputs = 784
+
 lr = float(args.lr)
 noise = 0.3
 num_epochs = 300

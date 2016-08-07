@@ -62,12 +62,12 @@ class ConfusionMatrix:
     def __init__(self, n_classes, class_names=None):
         self.n_classes = n_classes
         if class_names is None:
-            self.class_names = map(str, range(n_classes))
+            self.class_names = list(map(str, list(range(n_classes))))
         else:
             self.class_names = class_names
 
         # find max class_name and pad
-        max_len = max(map(len, self.class_names))
+        max_len = max(list(map(len, self.class_names)))
         self.max_len = max_len
         for idx, name in enumerate(self.class_names):
             if len(self.class_names) < max_len:

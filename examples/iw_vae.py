@@ -15,10 +15,7 @@ from parmesan.datasets import load_mnist_realval, load_mnist_binarized
 from parmesan.utils import log_mean_exp
 import matplotlib.pyplot as plt
 import shutil, gzip, os, time, math, operator, argparse
-try:
-    import cPickle  # python2
-except ImportError:
-    import pickle as cPickle    # python3
+from six.moves import cPickle
 
 filename_script = os.path.basename(os.path.realpath(__file__))
 

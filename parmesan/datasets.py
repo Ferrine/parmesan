@@ -1,17 +1,12 @@
 from __future__ import print_function
-
+import six
 import numpy as np
 import pickle as pkl
-try:
-    import cPickle as cPkl
-except ImportError:
-    import pickle as cPkl
+from six.moves import cPickle as cPkl
 import gzip, zipfile, tarfile
 import os, shutil, re, string, fnmatch
-try:
-    from urllib import urlretrieve
-except ImportError:
-    from urllib.request import urlretrieve
+from six.moves import urllib
+
 
 def _get_datafolder_path():
     full_path = os.path.abspath('.')
@@ -19,13 +14,10 @@ def _get_datafolder_path():
     return path
 
 def _unpickle(f):
-    try:
-        import cPickle
-    except ImportError:
-        import pickle as cPickle
-    fo = open(f, 'rb')
-    d = cPickle.load(fo)
-    fo.close()
+    if six.PY3:
+        d = cPkl.load(f, encoding='latin-1')
+    else:
+        d = cPkl.load(f)
     return d
 
 def _download_frey_faces(dataset):
@@ -38,7 +30,7 @@ def _download_frey_faces(dataset):
         'http://www.cs.nyu.edu/~roweis/data/frey_rawface.mat'
     )
     print('Downloading data from %s' % origin)
-    urlretrieve(origin, dataset+'.mat')
+    urllib.request.urlretrieve(origin, dataset+'.mat')
     matdata = loadmat(dataset)
     f = gzip.open(dataset +'.pkl.gz', 'w')
     pkl.dump([matdata['ff'].T],f)
@@ -54,7 +46,7 @@ def _download_mnist_realval(dataset):
         'http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz'
     )
     print('Downloading data from %s' % origin)
-    urlretrieve(origin, dataset)
+    urllib.request.urlretrieve(origin, dataset)
 
 def _download_omniglot_iwae(dataset):
     """
@@ -66,7 +58,7 @@ def _download_omniglot_iwae(dataset):
         'master/datasets/OMNIGLOT/chardata.mat'
     )
     print('Downloading data from %s' % origin)
-    urlretrieve(origin, dataset + '/chardata.mat')
+    urllib.request.urlretrieve(origin, dataset + '/chardata.mat')
 
 
 def _download_norb_small(dataset):
@@ -76,17 +68,17 @@ def _download_norb_small(dataset):
     from scipy.io import loadmat
     print('Downloading small resized norb data')
 
-    urlretrieve('http://dl.dropbox.com/u/13294233/smallnorb/smallnorb-'
+    urllib.request.urlretrieve('http://dl.dropbox.com/u/13294233/smallnorb/smallnorb-'
                        '5x46789x9x18x6x2x32x32-training-dat-matlab-bicubic.mat',
                        dataset + '/smallnorb_train_x.mat')
-    urlretrieve('http://dl.dropbox.com/u/13294233/smallnorb/smallnorb-'
+    urllib.request.urlretrieve('http://dl.dropbox.com/u/13294233/smallnorb/smallnorb-'
                        '5x46789x9x18x6x2x96x96-training-cat-matlab.mat',
                        dataset + '/smallnorb_train_t.mat')
 
-    urlretrieve('http://dl.dropbox.com/u/13294233/smallnorb/smallnorb-'
+    urllib.request.urlretrieve('http://dl.dropbox.com/u/13294233/smallnorb/smallnorb-'
                        '5x01235x9x18x6x2x32x32-testing-dat-matlab-bicubic.mat',
                        dataset + '/smallnorb_test_x.mat')
-    urlretrieve('http://dl.dropbox.com/u/13294233/smallnorb/smallnorb-'
+    urllib.request.urlretrieve('http://dl.dropbox.com/u/13294233/smallnorb/smallnorb-'
                        '5x01235x9x18x6x2x96x96-testing-cat-matlab.mat',
                        dataset + '/smallnorb_test_t.mat')
 
@@ -111,7 +103,7 @@ def _download_rotten_tomatoes(dataset):
               'movie-review-data/rt-polaritydata.tar.gz')
 
     print('Downloading data from %s' % origin)
-    urlretrieve(origin, dataset + '/rt-polaritydata.tar.gz')
+    urllib.request.urlretrieve(origin, dataset + '/rt-polaritydata.tar.gz')
 
 
 def load_norb_small(
@@ -157,9 +149,9 @@ def _download_omniglot(dataset):
         "raw/master/python/images_background.zip"
     )
     print('Downloading data from %s' % origin_eval)
-    urlretrieve(origin_eval, dataset + '/images_evaluation.zip')
+    urllib.request.urlretrieve(origin_eval, dataset + '/images_evaluation.zip')
     print('Downloading data from %s' % origin_back)
-    urlretrieve(origin_back, dataset + '/images_background.zip')
+    urllib.request.urlretrieve(origin_back, dataset + '/images_background.zip')
 
     with zipfile.ZipFile(dataset + '/images_evaluation.zip', "r") as z:
         z.extractall(dataset)
@@ -231,7 +223,7 @@ def _download_mnist_binarized(datapath):
     for split in datafiles.keys():
         print("Downloading %s data..." %(split))
         local_file = datapath + '/binarized_mnist_%s.npy'%(split)
-        datasplits[split] = np.loadtxt(urlretrieve(datafiles[split])[0])
+        datasplits[split] = np.loadtxt(urllib.request.urlretrieve(datafiles[split])[0])
 
     f = gzip.open(datapath +'/mnist.pkl.gz', 'w')
     pkl.dump([datasplits['train'],datasplits['valid'],datasplits['test']],f)
@@ -295,7 +287,7 @@ def load_mnist_realval(
         _download_mnist_realval(dataset)
 
     f = gzip.open(dataset, 'rb')
-    train_set, valid_set, test_set = pkl.load(f)
+    train_set, valid_set, test_set = _unpickle(f)
     f.close()
     x_train, targets_train = train_set[0], train_set[1]
     x_valid, targets_valid = valid_set[0], valid_set[1]
@@ -317,7 +309,7 @@ def load_mnist_binarized(
         _download_mnist_binarized(datasetfolder)
 
     f = gzip.open(dataset, 'rb')
-    x_train, x_valid, x_test = pkl.load(f)
+    x_train, x_valid, x_test = _unpickle(f)
     f.close()
     return x_train, x_valid, x_test
 
@@ -411,7 +403,7 @@ def _download_cifar10(dataset):
         'http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
     )
     print('Downloading data from %s' % origin)
-    urlretrieve(origin, dataset)
+    urllib.request.urlretrieve(origin, dataset)
 
 
 def load_cifar10(
@@ -487,13 +479,13 @@ def load_frey_faces(
         _download_frey_faces(dataset)
 
     if not os.path.isfile(datasetfolder + '/fixed_split.pkl'):
-        urlretrieve('https://raw.githubusercontent.com/casperkaae/'
+        urllib.request.urlretrieve('https://raw.githubusercontent.com/casperkaae/'
                            'extra_parmesan/master/data_splits/'
                            'frey_faces_fixed_split.pkl',
                            datasetfolder + '/fixed_split.pkl')
 
     f = gzip.open(dataset+'.pkl.gz', 'rb')
-    data = pkl.load(f)[0].reshape(-1,28,20).astype('float32')
+    data = _unpickle(f)[0].reshape(-1,28,20).astype('float32')
     f.close()
     if dequantify:
         data = data + np.random.uniform(0,1,size=data.shape).astype('float32')
@@ -524,14 +516,14 @@ def load_lfw(
         _download_lwf(dataset,size)
 
     if not os.path.isfile(datasetfolder + '/fixed_split.pkl'):
-        urlretrieve('https://raw.githubusercontent.com/casperkaae/'
+        urllib.request.urlretrieve('https://raw.githubusercontent.com/casperkaae/'
                            'extra_parmesan/master/data_splits/'
                            'lfw_fixed_split.pkl',
                            datasetfolder + '/fixed_split.pkl')
 
 
     f = gzip.open(dataset, 'rb')
-    data = cPkl.load(f)[0].astype('float32')
+    data = _unpickle(f)[0].astype('float32')
     f.close()
     if dequantify:
         data = data + np.random.uniform(0,1,size=data.shape).astype('float32')
@@ -605,7 +597,7 @@ def _download_svhn(dataset, extra):
           'this may take a while...')
     if extra:
         print("Downloading extra data...")
-        urlretrieve('http://ufldl.stanford.edu/housenumbers/extra_32x32.mat',
+        urllib.request.urlretrieve('http://ufldl.stanford.edu/housenumbers/extra_32x32.mat',
                            dataset+'extra_32x32.mat')
         extra = loadmat(dataset+'extra_32x32.mat')
         extra_x = extra['X'].swapaxes(2,3).swapaxes(1,2).swapaxes(0,1)
@@ -618,10 +610,10 @@ def _download_svhn(dataset, extra):
 
     else:
         print("Downloading train data...")
-        urlretrieve('http://ufldl.stanford.edu/housenumbers/train_32x32.mat',
+        urllib.request.urlretrieve('http://ufldl.stanford.edu/housenumbers/train_32x32.mat',
                            dataset+'train_32x32.mat')
         print("Downloading test data...")
-        urlretrieve('http://ufldl.stanford.edu/housenumbers/test_32x32.mat',
+        urllib.request.urlretrieve('http://ufldl.stanford.edu/housenumbers/test_32x32.mat',
                            dataset+'test_32x32.mat')
 
         train = loadmat(dataset+'train_32x32.mat')
@@ -802,7 +794,7 @@ def load_rotten_tomatoes(dataset=_get_datafolder_path()+'/rotten_tomatoes/',
         unk_idx = max(char2idx.values()) + 1
 
     # find maximum sequence length
-    max_len = max(map(len, pos_lst + neg_lst))
+    max_len = max(list(map(len, pos_lst + neg_lst)))
 
     # helper function for converting chars to matrix format
     def create_matrix(reviews, y_cls):
