@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import theano.tensor as T
 
@@ -106,6 +107,10 @@ class ConfusionMatrix:
         return "".join(s_out)
 
     def batchadd(self, y_pred, y_true):
+        if not isinstance(y_pred , np.ndarray):
+            y_pred = np.array(y_pred)
+        if not isinstance(y_true, np.ndarray):
+            y_true = np.array(y_true)
         assert y_true.shape == y_pred.shape
         assert len(y_true) == len(y_pred)
         assert max(y_true) < self.n_classes
@@ -121,7 +126,7 @@ class ConfusionMatrix:
             "performance will be wrong if this is ints"
         y_true_masked = y_true[mask]
         y_pred_masked = y_pred[mask]
-        self.batchAdd(y_true_masked, y_pred_masked)
+        self.batchadd(y_true_masked, y_pred_masked)
 
     def zero(self):
         self.mat.fill(0)
@@ -148,9 +153,11 @@ class ConfusionMatrix:
         """
         Calculates global accuracy
         :return: accuracy
-        :example: >>> conf = ConfusionMatrix(3)
-                  >>> conf.batchAdd([0,0,1],[0,0,2])
-                  >>> print conf.accuracy()
+        :example:
+        >>> conf = ConfusionMatrix(3)
+        >>> conf.batchadd([0,0,1],[0,0,2])
+        >>> print(conf.accuracy())
+        0.666666666667
         """
         tp, _, _, _ = self.geterrors()
         n_samples = np.sum(self.mat)
