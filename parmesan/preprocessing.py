@@ -26,14 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import numpy as np
-
+import warnings
 
 class ContrastNorm(object):
     """
     Code copied from https://github.com/arasmus/ladder/blob/master/nn.py
     """
     def __init__(self, scale=55, epsilon=1e-8):
-        raise Warning('ContranstNorm is untested!')
+        warnings.warn('ContranstNorm is untested!')
         self.scale = np.float32(scale)
         self.epsilon = np.float32(epsilon)
 
@@ -64,7 +64,7 @@ class ZCA(object):
     Code copied from https://github.com/arasmus/ladder/blob/master/nn.py
     """
     def __init__(self, n_components=None, data=None, filter_bias=0.1):
-        raise Warning('ZCA is untested!')
+        warnings.warn('ZCA is untested!')
         self.filter_bias = np.float32(filter_bias)
         self.P = None
         self.P_inv = None
