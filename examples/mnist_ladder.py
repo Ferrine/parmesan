@@ -151,7 +151,7 @@ unlabeled_slice = slice(num_labels, 2*num_labels)
 lambdas = map(float, args.lambdas.split(','))
 
 assert len(lambdas) == 7
-print "Lambdas: ", lambdas
+print("Lambdas: ", lambdas)
 
 
 num_classes = 10
@@ -224,9 +224,9 @@ h6, z6, z_noise6, norm_list6 = create_encoder(
 
 l_out_enc = h6
 
-print "h6:", lasagne.layers.get_output(h6, sym_x).eval({sym_x: x_train[:200]}).shape
+print("h6:", lasagne.layers.get_output(h6, sym_x).eval({sym_x: x_train[:200]}).shape)
 h6_dec = get_unlab(l_out_enc)
-print "y_weights_decoder:", lasagne.layers.get_output(h6_dec, sym_x).eval({sym_x: x_train[:200]}).shape
+print("y_weights_decoder:", lasagne.layers.get_output(h6_dec, sym_x).eval({sym_x: x_train[:200]}).shape)
 
 
 ###############
@@ -260,8 +260,8 @@ z_hat0 = DenoiseLayer(u_net=u0, z_net=get_unlab(z_noise0), name='dec_denoise0')
 z_hat_bn0 = z_hat0   # for consistency
 #############################
 
-print "z_hat_bn0:", lasagne.layers.get_output(
-    z_hat_bn0, sym_x).eval({sym_x: x_train[:200]}).shape
+print("z_hat_bn0:", lasagne.layers.get_output(
+    z_hat_bn0, sym_x).eval({sym_x: x_train[:200]}).shape)
 
 [enc_out_clean, z0_clean, z1_clean, z2_clean,
  z3_clean, z4_clean, z5_clean, z6_clean] = lasagne.layers.get_output(
@@ -310,10 +310,10 @@ collect_out = lasagne.layers.get_output(
 
 # Get list of all trainable parameters in the network.
 all_params = lasagne.layers.get_all_params(z_hat_bn0, trainable=True)
-print ""*20 + "PARAMETERS" + "-"*20
+print(""*20 + "PARAMETERS" + "-"*20)
 for p in all_params:
-    print p.name, p.get_value().shape
-print "-"*60
+    print(p.name, p.get_value().shape)
+print("-"*60)
 
 if gradclip is not None:
     all_grads = [T.clip(g, -gradclip, gradclip)
@@ -417,7 +417,7 @@ for epoch in range(num_epochs):
     s = ("*EPOCH\t{}\t{}\t{}\t{}\t{}\t{}"+str_costs).format(
         epoch, np.mean(losses_train), train_acc_cur, valid_acc_cur,
         test_acc_cur, sh_lr.get_value(), *layer_costs)
-    print s
+    print(s)
     with open(output_file, 'a') as f:
         f.write(s + "\n")
 

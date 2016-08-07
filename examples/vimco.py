@@ -117,13 +117,13 @@ def bernoullisample(x):
 
 # LOAD DATA AND SET UP SHARED VARIABLES
 if dataset is 'sample':
-    print "Using real valued MNIST dataset to binomial sample dataset " \
-          "after every epoch "
+    print("Using real valued MNIST dataset to binomial sample dataset "
+          "after every epoch ")
     train_x, train_t, valid_x, valid_t, test_x, test_t = load_mnist_realval()
     del train_t, valid_t, test_t
     preprocesses_dataset = bernoullisample
 else:
-    print "Using fixed binarized MNIST data"
+    print ("Using fixed binarized MNIST data")
     train_x, valid_x, test_x = load_mnist_binarized()
     preprocesses_dataset = lambda dataset: dataset  # just a dummy function
 
@@ -277,11 +277,11 @@ def lower_bound(z, z_mu, x_mu, x, eq_samples, iw_samples, epsilon=1e-6):
 # dummy data for testing the implementation
 X = np.ones((batch_size, 784), dtype=theano.config.floatX)
 
-print "OUTPUT SIZE OF l_z1 using BS=%d, latent_size=%d, sym_iw_samples=%d, sym_eq_samples=%d --"\
-      % (batch_size, latent_size, iw_samples, eq_samples), \
+print("OUTPUT SIZE OF l_z1 using BS=%d, latent_size=%d, sym_iw_samples=%d, sym_eq_samples=%d --" %
+       (batch_size, latent_size, iw_samples, eq_samples),
     lasagne.layers.get_output(l_z, sym_x).eval(
         {sym_x: X, sym_iw_samples: np.int32(iw_samples),
-         sym_eq_samples: np.int32(eq_samples)}).shape
+         sym_eq_samples: np.int32(eq_samples)}).shape)
 
 params = p_params + q_params
 
@@ -332,7 +332,7 @@ def test_epoch(eq_samples, iw_samples, batch_size):
         costs += [cost_batch]
     return np.mean(costs), output
 
-print "Training"
+print ("Training")
 
 # TRAIN LOOP
 # We have made some the code very verbose to make it easier to understand.
@@ -357,7 +357,7 @@ for epoch in range(1, 1+num_epochs):
     plt.close()
 
     l = "epoch %i\ttrain %f\eval%f" % (epoch, cost_train_, cost_eval_)
-    print l
+    print (l)
     with open(logfile, 'a') as f:
         f.write(l + "\n")
 

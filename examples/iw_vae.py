@@ -1,5 +1,7 @@
 # This code implementents a variational autoencoder using importance weighted
 # sampling as described in Burda et al. 2015 "Importance Weighted Autoencoders"
+from __future__ import print_function
+
 import theano
 theano.config.floatX = 'float32'
 import matplotlib
@@ -12,7 +14,11 @@ from parmesan.layers import SampleLayer, NormalizeLayer, ScaleAndShiftLayer
 from parmesan.datasets import load_mnist_realval, load_mnist_binarized
 from parmesan.utils import log_mean_exp
 import matplotlib.pyplot as plt
-import shutil, gzip, os, cPickle, time, math, operator, argparse
+import shutil, gzip, os, time, math, operator, argparse
+try:
+    import cPickle  # python2
+except ImportError:
+    import pickle as cPickle    # python3
 
 filename_script = os.path.basename(os.path.realpath(__file__))
 
@@ -115,12 +121,12 @@ def bernoullisample(x):
 
 ### LOAD DATA AND SET UP SHARED VARIABLES
 if dataset is 'sample':
-    print "Using real valued MNIST dataset to binomial sample dataset after every epoch "
+    print("Using real valued MNIST dataset to binomial sample dataset after every epoch ")
     train_x, train_t, valid_x, valid_t, test_x, test_t = load_mnist_realval()
     del train_t, valid_t, test_t
     preprocesses_dataset = bernoullisample
 else:
-    print "Using fixed binarized MNIST data"
+    print("Using fixed binarized MNIST data")
     train_x, valid_x, test_x = load_mnist_binarized()
     preprocesses_dataset = lambda dataset: dataset #just a dummy function
 
@@ -147,9 +153,9 @@ def normaldenselayer(l,num_units, nonlinearity, name, W=lasagne.init.GlorotUnifo
     return l
 
 if batch_norm:
-    print "Using batch Normalization - The current implementation calculates " \
-          "the BN constants on the complete dataset in one batch. This might " \
-          "cause memory problems on some GFX's"
+    print("Using batch Normalization - The current implementation calculates\n"
+          "the BN constants on the complete dataset in one batch. This might\n"
+          "cause memory problems on some GFX's")
     denselayer = batchnormlayer
 else:
     denselayer = normaldenselayer
@@ -230,11 +236,11 @@ LL_eval, log_qz_given_x_eval, log_pz_eval, log_px_given_z_eval = latent_gaussian
 #some sanity checks that we can forward data through the model
 X = np.ones((batch_size, 784), dtype=theano.config.floatX) # dummy data for testing the implementation
 
-print "OUTPUT SIZE OF l_z using BS=%d, latent_size=%d, sym_iw_samples=%d, sym_eq_samples=%d --"\
-      %(batch_size, latent_size, iw_samples, eq_samples), \
+print("OUTPUT SIZE OF l_z using BS=%d, latent_size=%d, sym_iw_samples=%d, sym_eq_samples=%d --"\
+      %(batch_size, latent_size, iw_samples, eq_samples),
     lasagne.layers.get_output(l_z,sym_x).eval(
     {sym_x: X, sym_iw_samples: np.int32(iw_samples),
-     sym_eq_samples: np.int32(eq_samples)}).shape
+     sym_eq_samples: np.int32(eq_samples)}).shape)
 
 #print "log_pz_train", log_pz_train.eval({sym_x:X, sym_iw_samples: np.int32(iw_samples),sym_eq_samples:np.int32(eq_samples)}).shape
 #print "log_px_given_z_train", log_px_given_z_train.eval({sym_x:X, sym_iw_samples: np.int32(iw_samples), sym_eq_samples:np.int32(eq_samples)}).shape
@@ -244,7 +250,7 @@ print "OUTPUT SIZE OF l_z using BS=%d, latent_size=%d, sym_iw_samples=%d, sym_eq
 # get all parameters
 params = lasagne.layers.get_all_params([l_dec_x_mu], trainable=True)
 for p in params:
-    print p, p.get_value().shape
+    print(p, p.get_value().shape)
 
 # note the minus because we want to push up the lowerbound
 grads = T.grad(-LL_train, params)
@@ -301,7 +307,7 @@ def test_epoch(eq_samples, iw_samples, batch_size):
         log_px_given_z += [log_px_given_z_batch]
     return np.mean(costs), np.mean(log_qz_given_x), np.mean(log_pz), np.mean(log_px_given_z)
 
-print "Training"
+print("Training")
 
 # TRAIN LOOP
 # We have made some the code very verbose to make it easier to understand.
@@ -336,13 +342,13 @@ for epoch in range(1, 1+num_epochs):
         z_mu_train = train_out[4]
         z_log_var_train = train_out[5]
 
-        print "calculating LL eq=1, iw=5000"
+        print("calculating LL eq=1, iw=5000")
         test_out5000 = test_epoch(1, 5000, batch_size=5) # smaller batch size to reduce memory requirements
         LL_test5000 += [test_out5000[0]]
         log_qz_given_x_test5000 += [test_out5000[1]]
         log_pz_test5000 += [test_out5000[2]]
         log_px_given_z_test5000 += [test_out5000[3]]
-        print "calculating LL eq=1, iw=1"
+        print("calculating LL eq=1, iw=1")
         test_out1 = test_epoch(1, 1, batch_size=50)
         LL_test1 += [test_out1[0]]
         log_qz_given_x_test1 += [test_out1[1]]
@@ -355,7 +361,7 @@ for epoch in range(1, 1+num_epochs):
                "  TRAIN:\tCost=%.5f\tlogq(z|x)=%.5f\tlogp(z)=%.5f\tlogp(x|z)=%.5f\n" %(costs_train[-1], log_qz_given_x_train[-1], log_pz_train[-1], log_px_given_z_train[-1]) + \
                "  EVAL-L1:\tCost=%.5f\tlogq(z|x)=%.5f\tlogp(z)=%.5f\tlogp(x|z)=%.5f\n" %(LL_test1[-1], log_qz_given_x_test1[-1], log_pz_test1[-1], log_px_given_z_test1[-1]) + \
                "  EVAL-L5000:\tCost=%.5f\tlogq(z|x)=%.5f\tlogp(z)=%.5f\tlogp(x|z)=%.5f" %(LL_test5000[-1], log_qz_given_x_test5000[-1], log_pz_test5000[-1], log_px_given_z_test5000[-1])
-        print line
+        print(line)
         with open(logfile,'a') as f:
             f.write(line + "\n")
 
@@ -410,7 +416,7 @@ for epoch in range(1, 1+num_epochs):
 
         fig, ax = plt.subplots()
         data = logvar_z_mu_train
-        heatmap = ax.pcolor(data, cmap=plt.cm.Greys)
+        heatmap = ax.pcolor(data, cmap=plt.get_cmap("Greys"))
         ax.set_xticks(np.arange(data.shape[1])+0.5, minor=False)
         ax.set_xticklabels(xepochs, minor=False)
         plt.xlabel('Epochs'), plt.ylabel('#Latent Unit'), plt.title('train log(var(mu))'), plt.colorbar(heatmap)
@@ -418,7 +424,7 @@ for epoch in range(1, 1+num_epochs):
 
         fig, ax = plt.subplots()
         data = logvar_z_var_train
-        heatmap = ax.pcolor(data, cmap=plt.cm.Greys)
+        heatmap = ax.pcolor(data, cmap=plt.get_cmap("Greys"))
         ax.set_xticks(np.arange(data.shape[1])+0.5, minor=False)
         ax.set_xticklabels(xepochs, minor=False)
         plt.xlabel('Epochs'), plt.ylabel('#Latent Unit'), plt.title('train log(var(var))'), plt.colorbar(heatmap)
@@ -426,7 +432,7 @@ for epoch in range(1, 1+num_epochs):
 
         fig, ax = plt.subplots()
         data = meanvar_z_var_train
-        heatmap = ax.pcolor(data, cmap=plt.cm.Greys)
+        heatmap = ax.pcolor(data, cmap=plt.get_cmap("Greys"))
         ax.set_xticks(np.arange(data.shape[1])+0.5, minor=False)
         ax.set_xticklabels(xepochs, minor=False)
         plt.xlabel('Epochs'), plt.ylabel('#Latent Unit'), plt.title('train log(mean(var))'), plt.colorbar(heatmap)

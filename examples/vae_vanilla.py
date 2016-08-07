@@ -44,12 +44,12 @@ def bernoullisample(x):
 
 ### LOAD DATA
 if dataset is 'sample':
-    print "Using real valued MNIST dataset to binomial sample dataset after every epoch "
+    print("Using real valued MNIST dataset to binomial sample dataset after every epoch ")
     train_x, train_t, valid_x, valid_t, test_x, test_t = load_mnist_realval()
     del train_t, valid_t, test_t
     preprocesses_dataset = bernoullisample
 else:
-    print "Using fixed binarized MNIST data"
+    print("Using fixed binarized MNIST data")
     train_x, valid_x, test_x = load_mnist_binarized()
     preprocesses_dataset = lambda dataset: dataset #just a dummy function
 
@@ -132,7 +132,7 @@ LL_eval = latent_gaussian_x_bernoulli(
 
 params = lasagne.layers.get_all_params([l_dec_x_mu], trainable=True)
 for p in params:
-    print p, p.get_value().shape
+    print(p, p.get_value().shape)
 
 ### Take gradient of Negative LogLikelihood
 grads = T.grad(-LL_train, params)
@@ -188,6 +188,6 @@ for epoch in range(num_epochs):
     t = time.time() - start
 
     line =  "*Epoch: %i\tTime: %0.2f\tLR: %0.5f\tLL Train: %0.3f\tLL test: %0.3f\t" % ( epoch, t, lr, train_cost, test_cost)
-    print line
+    print(line)
     with open(logfile,'a') as f:
         f.write(line + "\n")
