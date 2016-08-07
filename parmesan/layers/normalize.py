@@ -105,7 +105,7 @@ class NormalizeLayer(lasagne.layers.Layer):
                 running_var.default_update = (
                     (1 - self.alpha) * running_var + self.alpha * var)
             else:
-                print "Collecting using single pass..."
+                print("Collecting using single pass...")
                 # this is ugly figure out what can be safely removed...
                 running_mean.default_update = (0 * running_mean + 1.0 * mean)
                 running_var.default_update = (0 * running_var + 1.0 * var)
